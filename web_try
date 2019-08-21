@@ -1,0 +1,66 @@
+# #浏览器打开网页
+# import requests
+# import webbrowser
+# param = {"wd":"莫烦python"}
+# r = requests.get('http://www.baidu.com/s',params=param)
+# print(r.url)
+# webbrowser.open(r.url)
+# ######################################
+
+
+##下载国家地理美图
+
+#创建文件夹
+import os
+os.makedirs('./img/',exist_ok = True)
+####创建在默认文件夹下####
+img_url="https://morvanzhou.github.io/static/img/description/learning_step_flowchart.png"
+
+# #################################01############################
+# ####下载工具urlretieve,地址加位置######
+# from urllib.request import urlretrieve
+# urlretrieve(img_url,'./img/image1.png')
+# ##########################################
+# ##################################01 DONE#########################
+
+# #################################02###############################
+# ####使用requests下载文件###########
+# import requests
+# r=requests.get(img_url)
+# with open('./img/image2.png','wb') as f:
+#     f.write(r.content)
+# ###############################02 DONE##########################
+
+##################################03#################################
+###################更适用于大文件的下载，边下载边保存###################
+#import requests
+# r=requests.get(img_url,stream= True)
+# count=1
+# with open('./img/image3.png','wb') as f:
+#     for chunk in r.iter_content(chunk_size=32):#######当数据达到32字节时才写入
+#         f.write(chunk)
+#         print(count)
+#         count+=1
+# #################################03 DONE############################
+
+
+#############################正文开始################################
+############################国家地理#################################
+from bs4 import BeautifulSoup
+import requests
+
+url='http://www.ngchina.com.cn/animals/'
+html=requests.get(url).text
+soup=BeautifulSoup(html,'lxml')
+img_ul=soup.find_all('ul',{'class':'img_list'})
+
+for ul in img_ul:
+    imgs=ul.find_all('img')
+    for img in imgs:
+        url=img['src']
+        r=requests.get(url,stream=True)
+        image_name=url.split('/')[-1]#以/ 为分隔符，-1 为取最后一段，即取网址中的最后一块
+        with open('./img/%s'% image_name,'wb') as f:
+            for chunk in r.iter_content(chunk_size=128):
+                f.write(chunk)
+            print('Saved %s'%image_name)
